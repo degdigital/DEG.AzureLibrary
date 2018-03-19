@@ -1,0 +1,26 @@
+# Node build artifacts
+node_modules
+npm-debug.log
+
+# Local development
+*.env
+*.dev
+.DS_Store
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Other
+bower_components/
+.vs/
+[Dd]ebug/
+[Rr]elease/
+_build/
+[Bb]in/
+[Oo]bj/
+packages/
+*.suo
+*.user
+_ReSharper.*/
+*resharper.user
