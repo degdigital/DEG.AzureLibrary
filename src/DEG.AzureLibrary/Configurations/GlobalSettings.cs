@@ -15,27 +15,32 @@ namespace DEG.AzureLibrary
         /// Gets the application identifier.
         /// </summary>
         /// <value>The application identifier.</value>
-        public static string AppId => "APP";
+        public static string AppId { get; set; }
         /// <summary>
         /// Gets the connection string.
         /// </summary>
         /// <value>The connection string.</value>
-        public static string ConnectionString => null;
+        public static string ConnectionString { get; set; }
         /// <summary>
         /// Gets the name of the storage account.
         /// </summary>
         /// <value>The name of the storage account.</value>
-        public static string StorageAccountName => null;
+        public static string StorageAccountName { get; set; }
         /// <summary>
         /// Gets the default from email.
         /// </summary>
         /// <value>The default from email.</value>
-        public static string DefaultFromEmail => null;
+        public static string DefaultFromEmail { get; set; }
         /// <summary>
         /// Gets the default from name.
         /// </summary>
         /// <value>The default from name.</value>
-        public static string DefaultFromName => null;
+        public static string DefaultFromName { get; set; }
+
+        static GlobalSettings()
+        {
+            AppId = "APP";
+        }
 
         /// <summary>
         /// The json serializer settings
