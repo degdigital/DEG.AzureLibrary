@@ -58,8 +58,8 @@ namespace DEG.AzureLibrary.Repositories
         {
             try
             {
-                using (var reader = await _binder.BindAsync<TextReader>(new[] { new BlobAttribute(path) }))
-                    return JsonConvert.DeserializeObject<T>(reader.ReadToEnd(), JsonSerializerSettings);
+                using (var r = await _binder.BindAsync<TextReader>(new[] { new BlobAttribute(path) }))
+                    return r != null ? JsonConvert.DeserializeObject<T>(r.ReadToEnd(), JsonSerializerSettings) : default(T);
             }
             catch (Exception e) { throw new BlobParseException(e.ToString()); }
         }
