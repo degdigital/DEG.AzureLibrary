@@ -5,6 +5,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -15,12 +16,8 @@ namespace DEG.AzureLibrary.Repositories
     /// Class BlobRepository.
     /// </summary>
     /// <seealso cref="DEG.AzureLibrary.GlobalSettings" />
-    public class BlobRepository : GlobalSettings
+    public abstract class BaseBlobRepository : GlobalSettings
     {
-        /// <summary>
-        /// The issueable
-        /// </summary>
-        protected readonly IIssueable _issueable;
         /// <summary>
         /// The binder
         /// </summary>
@@ -29,19 +26,11 @@ namespace DEG.AzureLibrary.Repositories
         readonly CloudBlobClient _client;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BlobRepository"/> class.
+        /// Initializes a new instance of the <see cref="BaseBlobRepository"/> class.
         /// </summary>
         /// <param name="binder">The binder.</param>
-        public BlobRepository(Binder binder)
-            : this(null, binder) { }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BlobRepository"/> class.
-        /// </summary>
-        /// <param name="issueable">The issueable.</param>
-        /// <param name="binder">The binder.</param>
-        public BlobRepository(IIssueable issueable, Binder binder)
+        public BaseBlobRepository(Binder binder)
         {
-            _issueable = issueable;
             _binder = binder;
             _storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting(StorageAccountName ?? "AzureWebJobsStorage"));
             _client = _storageAccount.CreateCloudBlobClient();
@@ -56,6 +45,8 @@ namespace DEG.AzureLibrary.Repositories
         /// <exception cref="BlobParseException"></exception>
         protected async Task<T> ParseBlobAsync<T>(string path)
         {
+            if (_binder == null)
+                throw new InvalidOperationException("_binder is null");
             try
             {
                 using (var r = await _binder.BindAsync<TextReader>(new[] { new BlobAttribute(path) }))
@@ -65,16 +56,35 @@ namespace DEG.AzureLibrary.Repositories
         }
 
         /// <summary>
-        /// Gets the blobs.
+        /// Lists the blobs.
         /// </summary>
         /// <param name="containerName">Name of the container.</param>
         /// <param name="prefixFilter">The prefix filter.</param>
         /// <param name="flatListing">if set to <c>true</c> [flat listing].</param>
         /// <returns>IEnumerable&lt;IListBlobItem&gt;.</returns>
-        protected IEnumerable<IListBlobItem> GetBlobs(string containerName, string prefixFilter = null, bool flatListing = false)
+        protected IEnumerable<IListBlobItem> ListBlobs(string containerName, string prefixFilter = null, bool flatListing = false)
         {
             var container = _client.GetContainerReference(containerName);
+            if (container == null)
+                return Enumerable.Empty<IListBlobItem>();
             return container.ListBlobs(prefixFilter, flatListing);
+        }
+
+        /// <summary>
+        /// Gets the append BLOB.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="path">The path.</param>
+        /// <returns>CloudAppendBlob.</returns>
+        protected async Task<CloudAppendBlob> GetAppendBlob(string containerName, string path)
+        {
+            var container = _client.GetContainerReference(containerName);
+            if (container == null)
+                return null;
+            await container.CreateIfNotExistsAsync();
+            var r = container.GetAppendBlobReference(path);
+            await r.CreateOrReplaceAsync();
+            return r;
         }
     }
 }

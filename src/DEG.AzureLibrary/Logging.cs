@@ -1,4 +1,7 @@
-﻿using Microsoft.Azure.WebJobs.Host;
+﻿using DEG.AzureLibrary.Repositories;
+using Microsoft.Azure.WebJobs.Host;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System.Collections.Generic;
 
 namespace DEG.AzureLibrary
 {
@@ -25,6 +28,23 @@ namespace DEG.AzureLibrary
         /// <param name="message">The message.</param>
         /// <returns>ILog.</returns>
         ILog Fatal(string message);
+    }
+
+    /// <summary>
+    /// Interface IAppendBlob
+    /// </summary>
+    public interface IAppendBlob
+    {
+        /// <summary>
+        /// Appends the text.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        void AppendText(string text);
+        /// <summary>
+        /// Lists the append blobs.
+        /// </summary>
+        /// <returns>IEnumerable&lt;IListBlobItem&gt;.</returns>
+        IEnumerable<IListBlobItem> ListAppendBlobs();
     }
 
     //public class Logger
@@ -124,6 +144,49 @@ namespace DEG.AzureLibrary
             _log.Warning($"({_invocationId}): {message}");
             _log.Flush();
             return this;
+        }
+    }
+
+    /// <summary>
+    /// Class AppendLogger.
+    /// </summary>
+    /// <seealso cref="DEG.AzureLibrary.Repositories.BaseBlobRepository" />
+    /// <seealso cref="DEG.AzureLibrary.IAppendBlob" />
+    public class AppendLogger : BaseBlobRepository, IAppendBlob
+    {
+        readonly string _containerName;
+        readonly string _path;
+        readonly CloudAppendBlob _append;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppendLogger"/> class.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="path">The path.</param>
+        public AppendLogger(string containerName, string path)
+            : base(null)
+        {
+            _containerName = containerName;
+            _path = path;
+            _append = GetAppendBlob(containerName, path).Result;
+        }
+
+        /// <summary>
+        /// Appends the text.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        public void AppendText(string text)
+        {
+            _append.AppendText(text);
+        }
+
+        /// <summary>
+        /// Lists the append blobs.
+        /// </summary>
+        /// <returns>IEnumerable&lt;IListBlobItem&gt;.</returns>
+        public IEnumerable<IListBlobItem> ListAppendBlobs()
+        {
+            return ListBlobs(_containerName, _path);
         }
     }
 }

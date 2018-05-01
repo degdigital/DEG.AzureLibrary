@@ -26,7 +26,8 @@ namespace DEG.AzureLibrary
         /// <exception cref="AggregateException"></exception>
         public static void ProcessIssues(this IIssueable source, ExecutionContext ctx = null, string partitionKey = null, string rowKey = null, object tag = null, IIssueRepository issueRepository = null)
         {
-            if (source.Issues.Count == 0)
+            var issues = source.Issues.Where(x => x != null).ToList();
+            if (issues.Count == 0)
                 return;
             // exit if being throttled
             if ((issueRepository.Flags & IssueRepositoryFlags.ThrottleEmail) == IssueRepositoryFlags.ThrottleEmail)
@@ -40,7 +41,7 @@ namespace DEG.AzureLibrary
             // build message
             var message = new StringBuilder();
             message.Append($@"The following issues were found during the {ctx.FunctionName}\n");
-            message.Append(string.Join("\n", source.Issues.Select(x => x.ToString(tag)).ToArray()));
+            message.Append(string.Join("\n", issues.Select(x => x.ToString(tag)).ToArray()));
             // log message
             var log = source.Log;
             if ((issueRepository.Flags & IssueRepositoryFlags.Log) == IssueRepositoryFlags.Log)
@@ -57,7 +58,7 @@ namespace DEG.AzureLibrary
                 else log.Info($"IssueManager: Emailed Notification(s)");
             }
             // throw if critical
-            var criticalIssues = source.Issues.OfType<ICriticalIssue>().Select(x => x.Exception).ToArray();
+            var criticalIssues = issues.OfType<ICriticalIssue>().Select(x => x.Exception).ToArray();
             if (criticalIssues.Length > 0)
                 throw new AggregateException(criticalIssues);
         }
@@ -208,7 +209,7 @@ namespace DEG.AzureLibrary
         /// <value>The message.</value>
         public string Message
         {
-            get { return Exception != null ? Exception.Message : null; }
+            get { return Exception?.Message; }
             set { Exception = new Exception(value); }
         }
 
