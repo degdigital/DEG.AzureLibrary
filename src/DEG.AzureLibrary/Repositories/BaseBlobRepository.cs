@@ -56,6 +56,27 @@ namespace DEG.AzureLibrary.Repositories
         }
 
         /// <summary>
+        /// write BLOB as an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path">The path.</param>
+        /// <param name="obj">The object.</param>
+        /// <returns>Task.</returns>
+        /// <exception cref="InvalidOperationException">_binder is null</exception>
+        /// <exception cref="BlobParseException"></exception>
+        protected async Task WriteBlobAsync<T>(string path, T obj)
+        {
+            if (_binder == null)
+                throw new InvalidOperationException("_binder is null");
+            try
+            {
+                using (var r = await _binder.BindAsync<TextWriter>(new[] { new BlobAttribute(path) }))
+                    await r.WriteAsync(JsonConvert.SerializeObject(r, JsonSerializerSettings));
+            }
+            catch (Exception e) { throw new BlobParseException(e.ToString()); }
+        }
+
+        /// <summary>
         /// Lists the blobs.
         /// </summary>
         /// <param name="containerName">Name of the container.</param>
