@@ -59,15 +59,29 @@ namespace DEG.AzureLibrary.Repositories
         /// Lists the blobs.
         /// </summary>
         /// <param name="containerName">Name of the container.</param>
-        /// <param name="prefixFilter">The prefix filter.</param>
+        /// <param name="prefix">The prefix.</param>
         /// <param name="flatListing">if set to <c>true</c> [flat listing].</param>
         /// <returns>IEnumerable&lt;IListBlobItem&gt;.</returns>
-        protected IEnumerable<IListBlobItem> ListBlobs(string containerName, string prefixFilter = null, bool flatListing = false)
+        protected IEnumerable<IListBlobItem> ListBlobs(string containerName, string prefix = null, bool flatListing = false)
         {
             var container = _client.GetContainerReference(containerName);
             if (container == null)
                 return Enumerable.Empty<IListBlobItem>();
-            return container.ListBlobs(prefixFilter, flatListing);
+            return container.ListBlobs(prefix, flatListing).ToList();
+        }
+
+        /// <summary>
+        /// Removes the BLOB.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="path">The path.</param>
+        protected void RemoveBlob(string containerName, string path)
+        {
+            var container = _client.GetContainerReference(containerName);
+            if (container == null)
+                return;
+            var blob = container.GetAppendBlobReference(path);
+            blob.DeleteIfExists();
         }
 
         /// <summary>
@@ -82,9 +96,9 @@ namespace DEG.AzureLibrary.Repositories
             if (container == null)
                 return null;
             await container.CreateIfNotExistsAsync();
-            var r = container.GetAppendBlobReference(path);
-            await r.CreateOrReplaceAsync();
-            return r;
+            var blob = container.GetAppendBlobReference(path);
+            await blob.CreateOrReplaceAsync();
+            return blob;
         }
     }
 }

@@ -44,7 +44,12 @@ namespace DEG.AzureLibrary
         /// Lists the append blobs.
         /// </summary>
         /// <returns>IEnumerable&lt;IListBlobItem&gt;.</returns>
-        IEnumerable<IListBlobItem> ListAppendBlobs();
+        IEnumerable<IListBlobItem> ListAppendBlobs(string prefix = null, bool flatListing = false);
+        /// <summary>
+        /// Removes the append BLOB.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        void RemoveAppendBlob(string path);
     }
 
     //public class Logger
@@ -156,7 +161,7 @@ namespace DEG.AzureLibrary
     {
         readonly string _containerName;
         readonly string _path;
-        readonly CloudAppendBlob _append;
+        CloudAppendBlob _append;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppendLogger"/> class.
@@ -168,7 +173,6 @@ namespace DEG.AzureLibrary
         {
             _containerName = containerName;
             _path = path;
-            _append = GetAppendBlob(containerName, path).Result;
         }
 
         /// <summary>
@@ -177,16 +181,30 @@ namespace DEG.AzureLibrary
         /// <param name="text">The text.</param>
         public void AppendText(string text)
         {
+            if (_append == null)
+                _append = GetAppendBlob(_containerName, _path).Result;
             _append.AppendText(text);
         }
 
         /// <summary>
         /// Lists the append blobs.
         /// </summary>
+        /// <param name="prefix">The prefix.</param>
+        /// <param name="flatListing">if set to <c>true</c> [flat listing].</param>
         /// <returns>IEnumerable&lt;IListBlobItem&gt;.</returns>
-        public IEnumerable<IListBlobItem> ListAppendBlobs()
+        public IEnumerable<IListBlobItem> ListAppendBlobs(string prefix = null, bool flatListing = false)
         {
-            return ListBlobs(_containerName, _path);
+            return ListBlobs(_containerName, prefix, flatListing);
+        }
+
+        /// <summary>
+        /// Removes the append BLOB.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>IEnumerable&lt;IListBlobItem&gt;.</returns>
+        public void RemoveAppendBlob(string path)
+        {
+            RemoveBlob(_containerName, path);
         }
     }
 }

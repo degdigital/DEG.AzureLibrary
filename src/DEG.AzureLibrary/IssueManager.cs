@@ -88,6 +88,11 @@ namespace DEG.AzureLibrary
         /// <value>The log.</value>
         ILog Log { get; }
         /// <summary>
+        /// Gets the append BLOB.
+        /// </summary>
+        /// <value>The append BLOB.</value>
+        IAppendBlob AppendBlob { get; }
+        /// <summary>
         /// Adds the issue.
         /// </summary>
         /// <param name="e">The e.</param>
