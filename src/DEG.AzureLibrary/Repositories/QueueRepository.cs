@@ -3,7 +3,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Queue.Protocol;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DEG.AzureLibrary.Repositories
 {
@@ -44,15 +46,45 @@ namespace DEG.AzureLibrary.Repositories
         }
 
         /// <summary>
-        /// Gets the queues.
+        /// Lists the queues.
         /// </summary>
-        /// <param name="prefixFilter">The prefix filter.</param>
+        /// <param name="prefix">The prefix filter.</param>
         /// <param name="queueListingDetails">The queue listing details.</param>
         /// <param name="options">The options.</param>
+        /// <param name="skipPoison">if set to <c>true</c> [skip poison].</param>
         /// <returns>IEnumerable&lt;CloudQueue&gt;.</returns>
-        public IEnumerable<CloudQueue> GetQueues(string prefixFilter = null, QueueListingDetails queueListingDetails = QueueListingDetails.All, QueueRequestOptions options = null)
+        public IEnumerable<CloudQueue> ListQueues(string prefix = null, QueueListingDetails queueListingDetails = QueueListingDetails.All, QueueRequestOptions options = null, bool skipPoison = true)
         {
-            return _client.ListQueues(prefixFilter, queueListingDetails, options);
+            var r = _client.ListQueues(prefix, queueListingDetails, options);
+            return skipPoison ? r.Where(x => !x.Name.EndsWith("-poison")) : r;
+        }
+
+        /// <summary>
+        /// Deletes all queued messages.
+        /// </summary>
+        /// <param name="messagePredicate">The message predicate.</param>
+        /// <param name="prefix">The prefix.</param>
+        /// <param name="queueListingDetails">The queue listing details.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="skipPoison">if set to <c>true</c> [skip poison].</param>
+        public void DeleteAllQueuedMessages(Func<CloudQueueMessage, bool> messagePredicate, string prefix = null, QueueListingDetails queueListingDetails = QueueListingDetails.All, QueueRequestOptions options = null, bool skipPoison = true)
+        {
+            foreach (var queue in ListQueues(prefix, queueListingDetails, options, skipPoison))
+                DeleteQueuedMessages(queue, messagePredicate);
+        }
+
+        /// <summary>
+        /// Deletes the queued messages.
+        /// </summary>
+        /// <param name="queue">The queue.</param>
+        /// <param name="messagePredicate">The message predicate.</param>
+        public void DeleteQueuedMessages(CloudQueue queue, Func<CloudQueueMessage, bool> messagePredicate)
+        {
+            foreach (var message in queue.GetMessages(32))
+            {
+                if (messagePredicate(message)) queue.DeleteMessage(message);
+                else queue.UpdateMessage(message, TimeSpan.Zero, MessageUpdateFields.Visibility);
+            }
         }
     }
 }

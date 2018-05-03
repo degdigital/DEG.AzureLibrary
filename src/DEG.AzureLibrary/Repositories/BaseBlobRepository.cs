@@ -71,7 +71,7 @@ namespace DEG.AzureLibrary.Repositories
             try
             {
                 using (var r = await _binder.BindAsync<TextWriter>(new[] { new BlobAttribute(path) }))
-                    await r.WriteAsync(JsonConvert.SerializeObject(r, JsonSerializerSettings));
+                    await r.WriteAsync(JsonConvert.SerializeObject(obj, JsonSerializerSettings));
             }
             catch (Exception e) { throw new BlobParseException(e.ToString()); }
         }
