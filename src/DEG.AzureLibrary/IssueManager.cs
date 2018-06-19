@@ -38,12 +38,15 @@ namespace DEG.AzureLibrary
                 if (sinceEmailedOn < TimeSpan.FromMinutes(throttleInMinutes))
                     return;
             }
-            // build message
+            // build message - SendGrid HTML conversion spacing
+            // https://sendgrid.com/docs/Classroom/Build/Format_Content/plain_text_emails_converted_to_html.html
             var message = new StringBuilder();
-            message.Append($@"The following issues were found during the {ctx.FunctionName}\n");
-            message.Append(string.Join("\n", issues.Select(x => x.ToString(tag)).ToArray()));
-            // log message
+            message.Append($"The following issues were found during the {ctx?.FunctionName}\n\n");
+            message.Append($"Log ID: {ctx?.InvocationId}\n\n");
+            message.Append(string.Join("\n\n", issues.Select(x => x.ToString(tag)).ToArray()));
+            // log history
             var log = source.Log;
+            message.Append($"\n\nHistory\n\n {log.History().Replace("\n","\n ")}");
             if ((issueRepository.Flags & IssueRepositoryFlags.Log) == IssueRepositoryFlags.Log)
                 log.Info(message.ToString());
             // email message

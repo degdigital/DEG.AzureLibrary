@@ -2,6 +2,7 @@
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Collections.Generic;
+using System.Text;
 
 namespace DEG.AzureLibrary
 {
@@ -28,6 +29,11 @@ namespace DEG.AzureLibrary
         /// <param name="message">The message.</param>
         /// <returns>ILog.</returns>
         ILog Fatal(string message);
+        /// <summary>
+        /// Log History.
+        /// </summary>
+        /// <returns>string.</returns>
+        string History();
     }
 
     /// <summary>
@@ -103,6 +109,7 @@ namespace DEG.AzureLibrary
     {
         readonly TraceWriter _log;
         readonly string _invocationId;
+        readonly StringBuilder _history = new StringBuilder();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TraceLogger"/> class.
@@ -122,6 +129,7 @@ namespace DEG.AzureLibrary
         /// <returns>ILog.</returns>
         public ILog Info(string message)
         {
+            _history.Append(message);
             _log.Info($"({_invocationId}): {message}");
             _log.Flush();
             return this;
@@ -134,6 +142,7 @@ namespace DEG.AzureLibrary
         /// <returns>ILog.</returns>
         public ILog Warn(string message)
         {
+            _history.Append(message);
             _log.Warning($"({_invocationId}): {message}");
             _log.Flush();
             return this;
@@ -146,9 +155,19 @@ namespace DEG.AzureLibrary
         /// <returns>ILog.</returns>
         public ILog Fatal(string message)
         {
+            _history.Append(message);
             _log.Warning($"({_invocationId}): {message}");
             _log.Flush();
             return this;
+        }  
+        
+        /// <summary>
+        /// Returns log history.
+        /// </summary>
+        /// <returns>string.</returns>
+        public string History()
+        {
+            return _history.ToString();
         }
     }
 

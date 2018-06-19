@@ -60,8 +60,8 @@ namespace DEG.AzureLibrary
             {
                 From = from ?? new EmailAddress(DefaultFromEmail, DefaultFromName),
                 Subject = subject ?? $"{AppId} Notification",
-                PlainTextContent = message,
-                HtmlContent = message.Replace(@"\n", "<br>")
+                PlainTextContent = message
+                //HtmlContent = message.Replace(@"\n", "<br>")
             };
             foreach (var recipient in recipients)
                 msg.AddTo(recipient, null);
