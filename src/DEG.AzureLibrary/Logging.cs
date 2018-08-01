@@ -1,4 +1,5 @@
-﻿using DEG.AzureLibrary.Repositories;
+﻿using System;
+using DEG.AzureLibrary.Repositories;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Collections.Generic;
@@ -200,9 +201,17 @@ namespace DEG.AzureLibrary
         /// <param name="text">The text.</param>
         public void AppendText(string text)
         {
-            if (_append == null)
-                _append = GetAppendBlob(_containerName, _path).Result;
-            _append.AppendText(text);
+            // Append blob isn't supported by local emulator
+            try
+            {
+                if (_append == null)
+                    _append = GetAppendBlob(_containerName, _path).Result;
+                _append.AppendText(text);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
         /// <summary>

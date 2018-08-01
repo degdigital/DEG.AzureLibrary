@@ -36,6 +36,11 @@ namespace DEG.AzureLibrary
         /// </summary>
         /// <value>The default from name.</value>
         public static string DefaultFromName { get; set; }
+        /// <summary>
+        /// Gets the IsAzureEnvironment flag.
+        /// </summary>
+        /// <value>The IsAzureEnvironment flag.</value>
+        public static bool IsAzureEnvironment => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AzureWebsiteInstanceId"));
 
         static GlobalSettings()
         {
