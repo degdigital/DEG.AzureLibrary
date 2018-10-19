@@ -142,6 +142,34 @@ namespace System
             threadToKill.Abort();
             throw new TimeoutException();
         }
+        /// <summary>
+        /// Timeouts the invoke.
+        /// </summary>
+        /// <typeparam name="T1">The type of the 1.</typeparam>
+        /// <typeparam name="T2">The type of the 2.</typeparam>
+        /// <typeparam name="T3">The type of the 3.</typeparam>
+        /// <typeparam name="T4">The type of the 4.</typeparam>
+        /// <typeparam name="T5">The type of the 5.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="arg1">The arg1.</param>
+        /// <param name="arg2">The arg2.</param>
+        /// <param name="arg3">The arg3.</param>
+        /// <param name="arg4">The arg4.</param>
+        /// <param name="arg5">The arg5.</param>
+        /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+        public static void TimeoutInvoke<T1, T2, T3, T4, T5>(this Action<T1, T2, T3, T4, T5> source, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, int timeoutMilliseconds)
+        {
+            Thread threadToKill = null;
+            Action action = () => { threadToKill = Thread.CurrentThread; source(arg1, arg2, arg3, arg4, arg5); };
+            var result = action.BeginInvoke(null, null);
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            {
+                action.EndInvoke(result);
+                return;
+            }
+            threadToKill.Abort();
+            throw new TimeoutException();
+        }
 #if CLR4
         /// <summary>
         /// Tries the timeout.
