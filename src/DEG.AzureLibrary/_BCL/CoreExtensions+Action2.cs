@@ -15,13 +15,14 @@ namespace System
             bool hasAborted = false; Thread threadToKill = null;
             Action action = () => { threadToKill = Thread.CurrentThread; source(() => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
-                if (!hasAborted) { action.EndInvoke(result); onResolve(); }
-                else onTimeout();
+                action.EndInvoke(result);
+                onResolve();
                 return;
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
         }
         /// <summary>
         /// Timeouts the invoke.
@@ -37,13 +38,14 @@ namespace System
             bool hasAborted = false; Thread threadToKill = null;
             Action action = () => { threadToKill = Thread.CurrentThread; source(arg1, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
-                if (!hasAborted) { action.EndInvoke(result); onResolve(); }
-                else onTimeout();
+                action.EndInvoke(result);
+                onResolve();
                 return;
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
         }
         /// <summary>
         /// Timeouts the invoke.
@@ -61,13 +63,14 @@ namespace System
             bool hasAborted = false; Thread threadToKill = null;
             Action action = () => { threadToKill = Thread.CurrentThread; source(arg1, arg2, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
-                if (!hasAborted) { action.EndInvoke(result); onResolve(); }
-                else onTimeout();
+                action.EndInvoke(result);
+                onResolve();
                 return;
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
         }
         /// <summary>
         /// Timeouts the invoke.
@@ -87,14 +90,14 @@ namespace System
             bool hasAborted = false; Thread threadToKill = null;
             Action action = () => { threadToKill = Thread.CurrentThread; source(arg1, arg2, arg3, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
-                if (!hasAborted) { action.EndInvoke(result); onResolve(); }
-                else onTimeout();
+                action.EndInvoke(result);
+                onResolve();
                 return;
             }
-            threadToKill.Abort(); onTimeout();
-            return;
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
         }
         /// <summary>
         /// Timeouts the invoke.
@@ -116,13 +119,14 @@ namespace System
             bool hasAborted = false; Thread threadToKill = null;
             Action action = () => { threadToKill = Thread.CurrentThread; source(arg1, arg2, arg3, arg4, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
-                if (!hasAborted) { action.EndInvoke(result); onResolve(); }
-                else onTimeout();
+                action.EndInvoke(result);
+                onResolve();
                 return;
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
         }
         /// <summary>
         /// Timeouts the invoke.
@@ -146,13 +150,14 @@ namespace System
             bool hasAborted = false; Thread threadToKill = null;
             Action action = () => { threadToKill = Thread.CurrentThread; source(arg1, arg2, arg3, arg4, arg5, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
-                if (!hasAborted) { action.EndInvoke(result); onResolve(); }
-                else onTimeout();
+                action.EndInvoke(result);
+                onResolve();
                 return;
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
         }
     }
 }

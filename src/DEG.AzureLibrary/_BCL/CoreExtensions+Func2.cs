@@ -14,15 +14,16 @@ namespace System
         /// <returns>TResult.</returns>
         public static TResult TimeoutInvokePromise<TResult>(this Func<Action, TResult> source, int timeoutMilliseconds, Action onResolve = null, Action onTimeout = null)
         {
-            Thread threadToKill = null;
-            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(onTimeout); };
+            bool hasAborted = false; Thread threadToKill = null;
+            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(() => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
                 onResolve();
                 return action.EndInvoke(result);
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
             return default(TResult);
         }
         /// <summary>
@@ -38,15 +39,16 @@ namespace System
         /// <returns>TResult.</returns>
         public static TResult TimeoutInvokePromise<T1, TResult>(this Func<T1, Action, TResult> source, T1 arg1, int timeoutMilliseconds, Action onResolve = null, Action onTimeout = null)
         {
-            Thread threadToKill = null;
-            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, onTimeout); };
+            bool hasAborted = false; Thread threadToKill = null;
+            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
                 onResolve();
                 return action.EndInvoke(result);
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
             return default(TResult);
         }
         /// <summary>
@@ -64,15 +66,16 @@ namespace System
         /// <returns>TResult.</returns>
         public static TResult TimeoutInvokePromise<T1, T2, TResult>(this Func<T1, T2, Action, TResult> source, T1 arg1, T2 arg2, int timeoutMilliseconds, Action onResolve = null, Action onTimeout = null)
         {
-            Thread threadToKill = null;
-            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, arg2, onTimeout); };
+            bool hasAborted = false; Thread threadToKill = null;
+            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, arg2, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
                 onResolve();
                 return action.EndInvoke(result);
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
             return default(TResult);
         }
         /// <summary>
@@ -92,15 +95,16 @@ namespace System
         /// <returns>TResult.</returns>
         public static TResult TimeoutInvokePromise<T1, T2, T3, TResult>(this Func<T1, T2, T3, Action, TResult> source, T1 arg1, T2 arg2, T3 arg3, int timeoutMilliseconds, Action onResolve = null, Action onTimeout = null)
         {
-            Thread threadToKill = null;
-            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, arg2, arg3, onTimeout); };
+            bool hasAborted = false; Thread threadToKill = null;
+            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, arg2, arg3, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
                 onResolve();
                 return action.EndInvoke(result);
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
             return default(TResult);
         }
         /// <summary>
@@ -122,15 +126,16 @@ namespace System
         /// <returns>TResult.</returns>
         public static TResult TimeoutInvokePromise<T1, T2, T3, T4, TResult>(this Func<T1, T2, T3, T4, Action, TResult> source, T1 arg1, T2 arg2, T3 arg3, T4 arg4, int timeoutMilliseconds, Action onResolve = null, Action onTimeout = null)
         {
-            Thread threadToKill = null;
-            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, arg2, arg3, arg4, onTimeout); };
+            bool hasAborted = false; Thread threadToKill = null;
+            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, arg2, arg3, arg4, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
                 onResolve();
                 return action.EndInvoke(result);
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
             return default(TResult);
         }
         /// <summary>
@@ -154,15 +159,16 @@ namespace System
         /// <returns>TResult.</returns>
         public static TResult TimeoutInvokePromise<T1, T2, T3, T4, T5, TResult>(this Func<T1, T2, T3, T4, T5, Action, TResult> source, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, int timeoutMilliseconds, Action onResolve = null, Action onTimeout = null)
         {
-            Thread threadToKill = null;
-            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, arg2, arg3, arg4, arg5, onTimeout); };
+            bool hasAborted = false; Thread threadToKill = null;
+            Func<TResult> action = () => { threadToKill = Thread.CurrentThread; return source(arg1, arg2, arg3, arg4, arg5, () => { hasAborted = true; threadToKill.Abort(); }); };
             var result = action.BeginInvoke(null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
+            if (result.AsyncWaitHandle.WaitOne(timeoutMilliseconds) && !hasAborted)
             {
                 onResolve();
                 return action.EndInvoke(result);
             }
-            threadToKill.Abort(); onTimeout();
+            if (!hasAborted) threadToKill.Abort();
+            onTimeout();
             return default(TResult);
         }
     }
