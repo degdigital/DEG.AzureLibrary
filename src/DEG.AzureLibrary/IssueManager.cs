@@ -24,7 +24,7 @@ namespace DEG.AzureLibrary
         /// <param name="tag">The tag.</param>
         /// <param name="issueRepository">The issue repository.</param>
         /// <exception cref="AggregateException"></exception>
-        public static void ProcessIssues(this IIssueable source, ExecutionContext ctx = null, string partitionKey = null, string rowKey = null, object tag = null, IIssueRepository issueRepository = null)
+        public static async Task ProcessIssues(this IIssueable source, ExecutionContext ctx = null, string partitionKey = null, string rowKey = null, object tag = null, IIssueRepository issueRepository = null)
         {
             var issues = source.Issues.Where(x => x != null).ToList();
             if (issues.Count == 0)
@@ -56,7 +56,7 @@ namespace DEG.AzureLibrary
                 var emailClient = new EmailClient(null);
                 var emailResult = emailClient.SendEmail(message.ToString(), issueRepository.Recipients ?? defaultRecipients);
                 if ((issueRepository.Flags & IssueRepositoryFlags.ThrottleEmail) == IssueRepositoryFlags.ThrottleEmail)
-                    issueRepository.UpdateEmailedOnAsync(partitionKey, rowKey, DateTime.UtcNow).Wait();
+                    await issueRepository.UpdateEmailedOnAsync(partitionKey, rowKey, DateTime.UtcNow);
                 if (emailResult.StatusCode != HttpStatusCode.Accepted) log.Warn($"IssueManager: Failed to Send Email Notification(s)");
                 else log.Info($"IssueManager: Emailed Notification(s)");
             }
